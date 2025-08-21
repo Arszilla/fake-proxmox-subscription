@@ -1,5 +1,12 @@
+fake-proxmox-subscription (1.0.0-2) trixie; urgency=medium
+
+  * Update changelog
+  * Fix typo
+
+ -- Arslan Masood <contact@arszilla.com>  Fri, 22 Aug 2025 00:45:35 +0300
+
 fake-proxmox-subscription (1.0.0-1) trixie; urgency=medium
 
   * Initial release
 
- -- Arslan Masood <contact@arszilla.com>  Wed, 21 Aug 2025 23:30:35 +0300
+ -- Arslan Masood <contact@arszilla.com>  Thu, 21 Aug 2025 23:30:35 +0300
