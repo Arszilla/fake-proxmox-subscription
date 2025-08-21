@@ -19,7 +19,7 @@ What this package does is:
 2. **Future-Proof**: Requires no adjustments between system updates & major
 upgrades.
 3. **Hassle-Free**: Install or uninstall with ease, just 1 command and done.
-4. **Debian-ized**: Comes as a proper Debian package, fresh from GitLab CI/CD
+4. **Debian-ized**: Comes as a proper Debian package, fresh from GitHub CI/CD
 to provide transparency to its delivery.
 5. **Fuck JavaScript**: No JavaScript is involved in the whole process, because
 fuck JavaScript.
