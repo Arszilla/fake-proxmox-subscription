@@ -1,0 +1,22 @@
+Source: fake-proxmox-subscription
+Section: misc
+Priority: optional
+Maintainer: Arslan Masood <contact@arszilla.com>
+Uploaders: Arslan Masood <contact@arszilla.com>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+Standards-Version: 4.7.0
+Homepage: https://github.com/Arszilla/fake-proxmox-subscription
+Vcs-Browser: https://github.com/Arszilla/fake-proxmox-subscription
+Vcs-Git: https://github.com/Arszilla/fake-proxmox-subscription.git
+
+Package: fake-proxmox-subscription
+Architecture: all
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+ python3:any,
+Description: Remove "No valid subscription" dialog box in Proxmox products
+ A package to disables the "No valid subscription" dialog on all Proxmox
+ products (in theory), regardless of their version.

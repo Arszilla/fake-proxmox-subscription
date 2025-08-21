@@ -1,0 +1,5 @@
+fake-proxmox-subscription (1.0.0-1) trixie; urgency=medium
+
+  * Initial release
+
+ -- Arslan Masood <contact@arszilla.com>  Wed, 21 Aug 2025 23:30:35 +0300

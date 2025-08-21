@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+# output every command that modifies files on the build system.
+#export DH_VERBOSE = 1
+
+%:
+	dh $@
+
+override_dh_install:
+	dh_install
+
+	chmod 0755 usr/bin/fake-proxmox-subscription
+	chmod 0644 usr/lib/systemd/system/fake-proxmox-subscription.service
+	chmod 0644 usr/lib/systemd/system/fake-proxmox-subscription.timer
+

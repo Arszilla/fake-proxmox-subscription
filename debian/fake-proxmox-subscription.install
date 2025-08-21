@@ -1,0 +1,3 @@
+usr/bin/fake-proxmox-subscription usr/bin/
+usr/lib/systemd/system/fake-proxmox-subscription.service usr/lib/systemd/system/
+usr/lib/systemd/system/fake-proxmox-subscription.timer usr/lib/systemd/system/
