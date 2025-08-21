@@ -1,98 +1,73 @@
-# pve-fake-subscription
+## fake-proxmox-subscription
+A Debian package to disables the "No valid subscription" dialog on all Proxmox
+products (in theory), regardless of their version.
 
-![JavaScript free](https://img.shields.io/badge/JavaScript-free-%09%23f7df1e "No JavaScript is involved in this project. ")
+Based on [Jamesits/fake-pve-subscription][1]
 
-Disables the "No valid subscription" dialog on all Proxmox products.
+This package was created to provide that the package is built via CI/CD and be
+transparent about it - because you'd be installing it on your server afterall,
+and who'd install a random `.deb` package on it?
 
-> I am really poor and I can't afford a license. I just want to get rid of the annoying dialog.
-
-## Features
-
-Works for:
-
-- Proxmox VE (5.x or later; 3.x and 4.x [require some manual actions](#compatibility-information-for-old-proxmox-ve-versions))
+### Features
+This package should work and patch:
+- Proxmox VE (5.x or later - 3.x and 4.x requires some manual actions)
 - Proxmox Mail Gateway (5.x or later)
 - Proxmox Backup Server (1.x or later)
 
-Highlights:
+What this package does is:
+1. **Non-Intrusive**: Performs 0 modification to the system files.
+2. **Future-Proof**: Requires no adjustments between system updates & major
+upgrades.
+3. **Hassle-Free**: Install or uninstall with ease, just 1 command and done.
+4. **Debian-ized**: Comes as a proper Debian package, fresh from GitLab CI/CD
+to provide transparency to its delivery.
+5. **Fuck JavaScript**: No JavaScript is involved in the whole process, because
+fuck JavaScript.
 
-- Non-intrusive: zero modification of any system file
-- Future-proof: persists between system updates & major upgrades
-- Hassle-free: you can uninstall at any time
-- Comes with standard Debian package, easy to manage and automate
-- **No JavaScript is involved** in the whole process, as I believe JavaScript is harmful to developers
+### Usage
+#### Installation
+Download the [latest `.deb`][2] file found under [releases][2] and install it
+with `apt` or `apt-get`:
 
-## Usage
-
-### Installation
-
-1. [Download the latest release](https://github.com/Jamesits/pve-fake-subscription/releases/latest)
-1. Install: run `dpkg -i pve-fake-subscription_*.deb` as root on every node
-1. (Optional) `echo "127.0.0.1 shop.maurer-it.com" | sudo tee -a /etc/hosts` to prevent fake keys from being checked against the Proxmox servers
-
-Notes:
-
-After installation, please refrain yourself from clicking the "check" button on the "Subscription" page. It will invalidate the cache and temporary revert your instance into an unlicensed status.
-
-The fake subscription status doesn't grant you free access to the enterprise repository. You should switch to the no-subscription repository if not already done. Use the following method:
-
-- [Proxmox VE (PVE)](https://pve.proxmox.com/wiki/Package_Repositories#sysadmin_no_subscription_repo)
-- [Proxmox Mail Gateway (PMG)](https://pmg.proxmox.com/pmg-docs/pmg-admin-guide.html#pmg_package_repositories)
-- [Proxmox Backup Server (PBS)](https://pbs.proxmox.com/docs/installation.html#proxmox-backup-no-subscription-repository)
+```
+# curl -s https://api.github.com/repos/arszilla/fake-proxmox-subscription/releases/latest | grep "browser_download_url.*deb" | cut -d : -f 2,3 | tr -d \" | wget -i - -O fake-proxmox-subscription.deb
+# apt install ./fake-proxmox-subscription.deb
+```
 
 ### Uninstallation
+Just run `apt` or `apt-get` with the `remove` flag:
 
-Run as root:
-
-```shell
-apt purge pve-fake-subscription
+```
+# apt remove fake-proxmox-subscription
 ```
 
-This will revert your system to a "no subscription key" status.
+### Build It Yourself
+You can easily build the package yourself, assuming you have a *Debian*-based
+system:
 
-## Development Notes
-
-### Building the Package
-
-Install [nFPM](https://nfpm.goreleaser.com/install/), then:
-
-```shell
-./package.sh
+```
+$ sudo apt-get update
+$ sudo apt-get install -y --no-install-recommends build-essential debhelper dpkg-dev
+$ git clone https://github.com/Arszilla/fake-proxmox-subscription
+$ cd fake-proxmox-subscription/
+$ dpkg-buildpackage -us -uc -b
+$ ls -al ../fake-proxmox-subscription_*
 ```
 
-### Compatibility Information for Old Proxmox VE Versions
+You can view and validate the contents of your newly build `.deb` while at it:
 
-#### PVE 4.x
-
-After installation or updates, run:
-```shell
-sed -i'' -e's/pve8p/pve4p/g' /usr/bin/pve-fake-subscription
-pve-fake-subscription
+```
+$ dpkg-deb --info ../fake-proxmox-subscription_*.deb
+$ dpkg-deb --contents ./fake-proxmox-subscription_*.deb
 ```
 
-#### PVE 3.x
+Alternatively, a `Dockerfile` is available if you want to use `podman` or
+`docker` to build the packages. Just transfer the generated file from `/opt/`.
 
-Installation with `dpkg -i` will not work because of missing dependencies. Use the following script to install manually:
-```shell
-# extract the deb package
-mkdir -p /tmp/pve-fake-subscription
-dpkg-deb -x pve-fake-subscription_*.deb /tmp/pve-fake-subscription
+I couldn't be really arsed with it or bother - I mainly used the `Dockerfile`
+to validate my packaging, but reckoned someone might want to use it.
 
-# patch and install the script
-sed -i'' -e's/python3/python/g' -e's/pve8p/pve4p/g' /tmp/pve-fake-subscription/usr/bin/pve-fake-subscription
-mv /tmp/pve-fake-subscription/usr/bin/pve-fake-subscription /usr/local/bin/
-
-# install the timer
-ln -sf /usr/local/bin/pve-fake-subscription /etc/cron.hourly/pve-fake-subscription
-
-# invoke it once
-/usr/local/bin/pve-fake-subscription
-
-# remove temporary files
-rm -rf /tmp/pve-fake-subscription
-```
-
-Removal:
-```shell
-rm -f /usr/local/bin/pve-fake-subscription /etc/cron.hourly/pve-fake-subscription /etc/subscription
-```
+[1]: https://github.com/Jamesits/pve-fake-subscription
+[2]: https://github.com/Arszilla/fake-proxmox-subscription/releases/latest
+[3]: https://github.com/Arszilla/fake-proxmox-subscription/releases
+[4]: https://github.com/Jamesits
