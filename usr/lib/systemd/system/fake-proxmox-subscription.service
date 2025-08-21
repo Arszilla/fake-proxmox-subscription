@@ -1,0 +1,6 @@
+[Unit]
+Description=Fake Proxmox Subscription - Service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/fake-proxmox-subscription

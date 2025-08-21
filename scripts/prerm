@@ -1,29 +1,31 @@
 #!/bin/sh
 
-before_remove() {
-    :
+DEBSYSTEMCTL=$(command -v deb-systemd-invoke || echo systemctl)
 
-    debsystemctl=$(command -v deb-systemd-invoke || echo systemctl)
-    $debsystemctl stop pve-fake-subscription.timer >/dev/null || true
-    systemctl disable pve-fake-subscription.timer >/dev/null || true
+before_remove() {
+    $DEBSYSTEMCTL stop fake-proxmox-subscription.timer >/dev/null || true
+    systemctl disable fake-proxmox-subscription.timer >/dev/null || true
     systemctl --system daemon-reload >/dev/null || true
 }
 
 dummy() {
-    :
+    true
 }
 
 if [ "${1}" = "remove" ] && [ -z "${2}" ]; then
-    # "before remove" goes here
+    # "before remove" goes here:
     before_remove
+
 elif [ "${1}" = "upgrade" ]; then
-    # Executed before the old version is removed
-    # upon upgrade.
-    # We should generally not do anything here. The newly installed package
-    # should do the upgrade, not the uninstalled one, since it can't anticipate
-    # what new things it will have to do to upgrade for the new version.
+    # This section is executed before the old version is removed upon upgrade.
+    # Generally, we should not be doing anything here for the purposes of this
+    # package. The newly installed package should do the upgrade, not the
+    # uninstalled one. This is mainly because the uninstalled one cannot
+    # anticipate what the updated package will change.
     dummy
+
 elif echo "${1}" | grep -E -q "(fail|abort)"; then
     echo "Failed to install before the pre-removal script was run." >&2
     exit 1
+
 fi

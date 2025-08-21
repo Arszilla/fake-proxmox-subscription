@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
 
-# Pollute Proxmox software subscription cache so it won't alert you on dashboard login
-# Should be scheduled to run every few hours with a timer to prevent cache from expiring
-# If you need to prevent it checking keys against a server, please block "shop.maurer-it.com" in your hosts file
+"""
+Pollutes the Proxmox software subscription cache so it won't doesn't nag you
+on login.
+
+The script should be scheduled to run every few hours using a timer to prevent
+the cache from expiring.
+
+If you need to prevent it from checking keys against a server, block
+"shop.maurer-it.com" in your /etc/hosts file (or block network traffic to the
+host)
+"""
 
 from __future__ import print_function
 import hashlib
@@ -14,37 +22,45 @@ import sys
 import os
 from datetime import datetime, timedelta
 
+
 # PVE & PMG: /usr/share/perl5/PVE/Subscription.pm
-# PBS: /usr/lib/x86_64-linux-gnu/proxmox-backup/* (source code at `https://git.proxmox.com/git/proxmox-backup.git`)
+# PBS: /usr/lib/x86_64-linux-gnu/proxmox-backup/*
+# (Source code available at https://git.proxmox.com/?p=proxmox-backup.git)
 shared_key_data = "kjfdlskfhiuewhfk947368"
 server_key_file = "/etc/ssh/ssh_host_rsa_key.pub"
 
-# Default license keys
-lic_pve = "pve8p-1145141919"
-lic_pmg = "pmgp-1145141919"
-lic_pbs = "pbst-1145141919"
+# Default license keys:
+license_pve = "pve8p-1145141919"
+license_pmg = "pmgp-1145141919"
+license_pbs = "pbst-1145141919"
 
-# UI customization
-ui_product_name = "YajuuSenpai"
-ui_message = "Yajuu Senpai has got your back"
-ui_url = "https://github.com/Jamesits/pve-fake-subscription"
+# UI customization:
+ui_product_name = "Proxmox"
+ui_message = "Jamesits and Arszilla has got your back"
+ui_url = "https://github.com/Arszilla/fake-proxmox-subscription"
+
 
 def get_timestamp():
     return int(time.time())
 
-# Perl's md5_base64 implementation
-def md5_base64_perl(x):
-    return base64.b64encode(hashlib.md5(x.encode()).digest()).strip(b'=').decode()
 
-# Rust's `base64::encode(tools::md5sum("something")?);`
+# Perl's md5_base64 implementation:
+def md5_base64_perl(x):
+    return base64.b64encode(hashlib.md5(x.encode()).digest()).strip(b"=").decode()
+
+
+# Rust's 'base64::encode(tools::md5sum("something")?);':
 def md5_base64_rs(x):
     return base64.b64encode(hashlib.md5(x.encode()).digest()).decode()
+
 
 def generate_server_id(key):
     return hashlib.md5(key.encode()).hexdigest().upper()
 
+
 def dt_string(format, offset_secs=0):
     return (datetime.now() + timedelta(seconds=offset_secs)).strftime(format)
+
 
 def generate_subscription_pve_pmg(key, server_ids, product_name=ui_product_name):
     localinfo = {
@@ -63,74 +79,84 @@ def generate_subscription_pve_pmg(key, server_ids, product_name=ui_product_name)
 
     return key + "\n" + csum + "\n" + data + "\n"
 
-# key_pattern can be find in /usr/share/perl5/{PVE,PMG}/API2/Subscription.pm
-# PVE5+: r'pve([1248])([cbsp])-[0-9a-f]{10}'
-# PVE3/4: r'pve([124])([cbsp])-[0-9a-f]{10}'
-# PMG: r'pmg([cbsp])-[0-9a-f]{10}'
+
+# key_pattern can be found in /usr/share/perl5/{PVE,PMG}/API2/Subscription.pm
+# PVE5+:    r'pve([1248])([cbsp])-[0-9a-f]{10}'
+# PVE3/4:   r'pve([124])([cbsp])-[0-9a-f]{10}'
+# PMG:      r'pmg([cbsp])-[0-9a-f]{10}'
 def activate_pve_pmg(key, subscription_file, *args, **kwargs):
-    # check if the key format is correct
+    # Check if the key format is correct:
     # pattern = re.compile(key_pattern)
     # if not pattern.match(key):
     #     print("key format error", file=sys.stderr)
     #     sys.exit(1)
 
-    # get machine ID
+    # Get machine ID:
     server_id = ""
     with open(server_key_file, "r") as f:
         server_id = generate_server_id(f.read())
 
-    # generate a license file
+    # Generate a license file:
     subscription = generate_subscription_pve_pmg(key, [server_id], *args, **kwargs)
 
-    # write license file
+    # Write the license file:
     with open(subscription_file, "w") as f:
         f.write(subscription)
 
+
 def generate_subscription_pbs(key, server_ids, product_name=ui_product_name, message=ui_message, url=ui_url):
     localinfo = {
-        "status": "active", # PBS: `new`, `notfound`, `active`, `invalid`
+        # Possible values for "status" in PBS:
+        #   - new
+        #   - notfound
+        #   - active
+        #   - invalid
+        "status": "active",
         "serverid": ",".join(server_ids),
         "checktime": get_timestamp(),
         "key": key,
         "message": message,
         "productname": product_name,
         "regdate": dt_string("%Y-%m-%d %H:%M:%S"),
-        "nextduedate": dt_string("%Y-%m-%d", 1296000), # 1296000: MAX_LOCAL_KEY_AGE in src/tools/subscription.rs
+        # 1296000 is the MAX_LOCAL_KEY_AGE in src/tools/subscription.rs
+        "nextduedate": dt_string("%Y-%m-%d", 1296000),
         "url": url,
     }
 
     data = base64.standard_b64encode(json.dumps(localinfo).encode()).decode()
     cat = str(localinfo["checktime"]) + data + shared_key_data
-    csum = md5_base64_rs(cat)
+    checksum = md5_base64_rs(cat)
 
-    return key + "\n" + csum + "\n" + data + "\n"
+    return key + "\n" + checksum + "\n" + data + "\n"
+
 
 # Key pattern: pbst-xxxxxxxxxx
 def activate_pbs(key, subscription_file, *args, **kwargs):
-    # get machine ID
+    # Get machine ID:
     server_id = ""
     with open(server_key_file, "r") as f:
         server_id = generate_server_id(f.read())
 
-    # generate a license file
+    # Generate a license file:
     subscription = generate_subscription_pbs(key, [server_id], *args, **kwargs)
 
-    # write license file
+    # Write the license file:
     with open(subscription_file, "w") as f:
         f.write(subscription)
+
 
 if __name__ == "__main__":
     # Proxmox VE
     if os.path.exists("/etc/pve"):
         print("Activating Proxmox VE...")
-        activate_pve_pmg(lic_pve, "/etc/subscription")
+        activate_pve_pmg(license_pve, "/etc/subscription")
 
     # Proxmox Mail Gateway
     if os.path.exists("/etc/pmg"):
         print("Activating Proxmox Mail Gateway...")
-        activate_pve_pmg(lic_pmg, "/etc/pmg/subscription")
+        activate_pve_pmg(license_pmg, "/etc/pmg/subscription")
 
     # Proxmox Backup Server
     if os.path.exists("/etc/proxmox-backup"):
         print("Activating Proxmox Backup Server...")
-        activate_pbs(lic_pbs, "/etc/proxmox-backup/subscription")
+        activate_pbs(license_pbs, "/etc/proxmox-backup/subscription")

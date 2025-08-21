@@ -1,39 +1,44 @@
 #!/bin/sh
 
-after_upgrade() {
-    :
+DEBSYSTEMCTL=$(command -v deb-systemd-invoke || echo systemctl)
 
+after_upgrade() {
     if command -v systemctl >/dev/null; then
         systemctl --system daemon-reload >/dev/null || true
-        debsystemctl=$(command -v deb-systemd-invoke || echo systemctl)
-        if ! systemctl is-enabled pve-fake-subscription.timer >/dev/null
-        then
-        : # Ensure this if-clause is not empty. If it were empty, and we had an 'else', then it is an error in shell syntax
-            systemctl preset pve-fake-subscription.timer >/dev/null || true
-            $debsystemctl start pve-fake-subscription.timer >/dev/null || true
+
+        if ! systemctl is-enabled fake-proxmox-subscription.timer >/dev/null; then
+            # Ensure this if-clause is not empty.
+            # If it was empty, and we had an 'else', then it is an error in shell syntax.
+            systemctl preset fake-proxmox-subscription.timer >/dev/null || true
+            $DEBSYSTEMCTL start fake-proxmox-subscription.timer >/dev/null || true
+
         else
-            $debsystemctl restart pve-fake-subscription.timer >/dev/null || true
+            $DEBSYSTEMCTL restart fake-proxmox-subscription.timer >/dev/null || true
+
         fi
+
     else
-        ln -sf /usr/bin/pve-fake-subscription /etc/cron.hourly/pve-fake-subscription
+        ln -sf /usr/bin/fake-proxmox-subscription /etc/cron.hourly/fake-proxmox-subscription
+
     fi
 
-    pve-fake-subscription
+    # Execute the fake-proxmox-subscription script:
+    /usr/bin/fake-proxmox-subscription
 }
 
 after_install() {
-    :
-
     if command -v systemctl >/dev/null; then
         systemctl --system daemon-reload >/dev/null || true
-        debsystemctl=$(command -v deb-systemd-invoke || echo systemctl)
-        systemctl preset pve-fake-subscription.timer >/dev/null || true
-        $debsystemctl start pve-fake-subscription.timer >/dev/null || true
+        systemctl preset fake-proxmox-subscription.timer >/dev/null || true
+        $DEBSYSTEMCTL start fake-proxmox-subscription.timer >/dev/null || true
+
     else
-        ln -sf /usr/bin/pve-fake-subscription /etc/cron.hourly/pve-fake-subscription
+        ln -sf /usr/bin/fake-proxmox-subscription /etc/cron.hourly/fake-proxmox-subscription
+
     fi
 
-    pve-fake-subscription
+    # Execute the fake-proxmox-subscription script:
+    /usr/bin/fake-proxmox-subscription
 }
 
 if { [ "${1}" = "configure" ] && [ -z "${2}" ]; } || [ "${1}" = "abort-remove" ]; then
@@ -42,15 +47,18 @@ if { [ "${1}" = "configure" ] && [ -z "${2}" ]; } || [ "${1}" = "abort-remove" ]
     #   In that case, this script, which should be idemptoent, is run
     #   to ensure a clean roll-back of the removal.
     after_install
+
 elif [ "${1}" = "configure" ] && [ -n "${2}" ]; then
-    upgradeFromVersion="${2}"
+    UPGRADEDFROMVERSION="${2}"
     # "after upgrade" here
     # NOTE: This slot is also used when deb packages are removed,
     # but their config files aren't, but a newer version of the
     # package is installed later, called "Config-Files" state.
     # basically, that still looks a _lot_ like an upgrade to me.
     after_upgrade "${2}"
+
 elif echo "${1}" | grep -E -q "(abort|fail)"; then
     echo "Failed to install before the post-installation script was run." >&2
     exit 1
+
 fi

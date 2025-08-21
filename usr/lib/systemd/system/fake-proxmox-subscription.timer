@@ -1,5 +1,5 @@
 [Unit]
-Description=Refresh fake Proxmox VE subscription cache every day
+Description=Fake Proxmox Subscription - Refresher
 
 [Timer]
 OnActiveSec=0s
