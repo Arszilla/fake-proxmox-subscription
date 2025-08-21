@@ -10,3 +10,5 @@ RUN apt-get update && \
 COPY . $FOLDER
 
 RUN dpkg-buildpackage -us -uc -b
+RUN mkdir debian/artifacts
+RUN mv /opt/fake-proxmox-subscription_* $FOLDER/debian/artifacts/

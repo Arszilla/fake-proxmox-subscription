@@ -2,11 +2,18 @@
 A Debian package to disables the "No valid subscription" dialog on all Proxmox
 products (in theory), regardless of their version.
 
-Based on [Jamesits/fake-pve-subscription][1]
+Based on [Jamesits/fake-pve-subscription][1]'s work. There are a few key
+differences between his repository and this repository:
 
-This package was created to provide that the package is built via CI/CD and be
-transparent about it - because you'd be installing it on your server afterall,
-and who'd install a random `.deb` package on it?
+1. `pve-fake-subscription` has been ditched in favor of
+`fake-proxmox-subscription` name. This should have been done in the first
+place, as the script covers all 3 Proxmox products.
+2. Added proper Debian packaging (instead of that JavaScript abomination).
+3. Added GitHub Actions workflow to build and then publish `.deb` packages.
+
+I believe 3. is the most critical change here. Because you wouldn't download
+and install a `.deb` that you can't verify that it has been not been altered
+with, would you?
 
 ### Features
 This package should work and patch:
