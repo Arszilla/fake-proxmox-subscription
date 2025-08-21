@@ -18,5 +18,5 @@ Depends:
  ${shlibs:Depends},
  python3:any,
 Description: Remove "No valid subscription" dialog box in Proxmox products
- A package to disables the "No valid subscription" dialog on all Proxmox
- products (in theory), regardless of their version.
+ A Debian package that disables the "No valid subscription" dialog on all
+ Proxmox products (in theory), regardless of their version.
