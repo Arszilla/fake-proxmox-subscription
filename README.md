@@ -69,9 +69,17 @@ $ dpkg-deb --contents ./fake-proxmox-subscription_*.deb
 ```
 
 Alternatively, a `Dockerfile` is available if you want to use `podman` or
-`docker` to build the packages. Just transfer the generated file from `/opt/`.
+`docker` to build the packages.
 
-I couldn't be really arsed with it or bother - I mainly used the `Dockerfile`
+```
+$ podman build -t fake-proxmox-subscription .
+$ podman run -it fake-proxmox-subscription:latest /bin/bash -c "ls -al /opt/fake-proxmox-subscription/debian/artifacts/"
+```
+
+Afterwards, just transfer the generated `.deb` from
+`/opt/fake-proxmox-subscription/debian/artifacts/`.
+
+The `Dockerfile` is basic and not really used as I mainly used it
 to validate my packaging, but reckoned someone might want to use it.
 
 [1]: https://github.com/Jamesits/pve-fake-subscription
