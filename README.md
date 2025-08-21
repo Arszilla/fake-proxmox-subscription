@@ -1,6 +1,6 @@
 ## fake-proxmox-subscription
-A Debian package to disables the "No valid subscription" dialog on all Proxmox
-products (in theory), regardless of their version.
+A Debian package that disables the "No valid subscription" dialog on all
+Proxmox products (in theory), regardless of their version.
 
 Based on [Jamesits/fake-pve-subscription][1]'s work. There are a few key
 differences between his repository and this repository:
@@ -33,7 +33,7 @@ fuck JavaScript.
 
 ### Usage
 #### Installation
-Download the [latest `.deb`][2] file found under [releases][2] and install it
+Download the [latest `.deb`][2] file from the [releases][2] page and install it
 with `apt` or `apt-get`:
 
 ```
@@ -42,7 +42,8 @@ with `apt` or `apt-get`:
 ```
 
 ### Uninstallation
-Just run `apt` or `apt-get` with the `remove` flag:
+To uninstall, simply run `apt` or `apt-get` with the `remove` flag and the
+package name:
 
 ```
 # apt remove fake-proxmox-subscription
@@ -61,15 +62,15 @@ $ dpkg-buildpackage -us -uc -b
 $ ls -al ../fake-proxmox-subscription_*
 ```
 
-You can view and validate the contents of your newly build `.deb` while at it:
+While at it, you can view and validate the contents of your newly built `.deb`:
 
 ```
 $ dpkg-deb --info ../fake-proxmox-subscription_*.deb
 $ dpkg-deb --contents ./fake-proxmox-subscription_*.deb
 ```
 
-Alternatively, a `Dockerfile` is available if you want to use `podman` or
-`docker` to build the packages.
+Alternatively, if you want to use `podman` or `docker` to build the `.deb`, a
+`Dockerfile` is available:
 
 ```
 $ podman build -t fake-proxmox-subscription .
@@ -79,8 +80,9 @@ $ podman run -it fake-proxmox-subscription:latest /bin/bash -c "ls -al /opt/fake
 Afterwards, just transfer the generated `.deb` from
 `/opt/fake-proxmox-subscription/debian/artifacts/`.
 
-The `Dockerfile` is basic and not really used as I mainly used it
-to validate my packaging, but reckoned someone might want to use it.
+The `Dockerfile` is basic and was not really used besides build testing,
+validating packaging, etc. I've only kept it in case someone might be
+interested in using it.
 
 [1]: https://github.com/Jamesits/pve-fake-subscription
 [2]: https://github.com/Arszilla/fake-proxmox-subscription/releases/latest
