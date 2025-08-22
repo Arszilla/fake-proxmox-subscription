@@ -5,15 +5,16 @@ Proxmox products (in theory), regardless of their version.
 Based on [Jamesits/fake-pve-subscription][1]'s work. There are a few key
 differences between his repository and this repository:
 
-1. `pve-fake-subscription` has been ditched in favor of
-`fake-proxmox-subscription` name. This should have been done in the first
-place, as the script covers all 3 Proxmox products.
-2. Added proper Debian packaging (instead of that JavaScript abomination).
+1. The name `pve-fake-subscription` has been replaced with
+`fake-proxmox-subscription`. This should have been done in the first place
+since the package covers all 3 Proxmox products.
+2. Added proper Debian packaging so that `dpkg-buildpackage` could be used
+instead of `nFPM` nonsense.
 3. Added GitHub Actions workflow to build and then publish `.deb` packages.
 
-I believe 3. is the most critical change here. Because you wouldn't download
-and install a `.deb` that you can't verify that it has been not been altered
-with, would you?
+The 3rd point above is the most critical change here. This is because you
+wouldn't download and install a .deb that you can't verify has not been
+altered with, would you?
 
 ### Features
 This package should work and patch:
@@ -22,12 +23,12 @@ This package should work and patch:
 - Proxmox Backup Server (1.x or later)
 
 What this package does is:
-1. **Non-Intrusive**: Performs 0 modification to the system files.
+1. **Non-Intrusive**: Performs 0 modifications to the system files.
 2. **Future-Proof**: Requires no adjustments between system updates & major
 upgrades.
-3. **Hassle-Free**: Install or uninstall with ease, just 1 command and done.
-4. **Debian-ized**: Comes as a proper Debian package, fresh from GitHub CI/CD
-to provide transparency to its delivery.
+3. **Hassle-Free**: Install (or uninstall) with ease.
+4. **Debian-ized**: `fake-proxmox-license` is delivered as a proper Debian
+package, fresh from GitHub CI/CD to provide transparency and automation.
 5. **Fuck JavaScript**: No JavaScript is involved in the whole process, because
 fuck JavaScript.
 
@@ -42,8 +43,8 @@ with `apt` or `apt-get`:
 ```
 
 ### Uninstallation
-To uninstall, simply run `apt` or `apt-get` with the `remove` flag and the
-package name:
+To uninstall, run `apt` or `apt-get` with the `remove` flag and the package
+name:
 
 ```
 # apt remove fake-proxmox-subscription
@@ -77,10 +78,10 @@ $ podman build -t fake-proxmox-subscription .
 $ podman run -it fake-proxmox-subscription:latest /bin/bash -c "ls -al /opt/fake-proxmox-subscription/debian/artifacts/"
 ```
 
-Afterwards, just transfer the generated `.deb` from
+Afterwards, transfer the generated `.deb` from
 `/opt/fake-proxmox-subscription/debian/artifacts/`.
 
-The `Dockerfile` is basic and was not really used besides build testing,
+The `Dockerfile` is basic and was primarily used for build testing,
 validating packaging, etc. I've only kept it in case someone might be
 interested in using it.
 
