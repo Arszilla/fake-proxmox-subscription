@@ -17,6 +17,8 @@ Depends:
  ${misc:Depends},
  ${shlibs:Depends},
  python3:any,
+Conflicts:
+ pve-fake-subscription,
 Description: Remove "No valid subscription" dialog box in Proxmox products
  A Debian package that disables the "No valid subscription" dialog on all
  Proxmox products (in theory), regardless of their version.
